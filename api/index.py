@@ -22,7 +22,6 @@ def load_users_from_excel(file_path):
         users.append({"username": username, "password": password, "key": key, "full_name": full_name, "team": team})
     return users
 
-import openpyxl
 
 def append_to_excel(file_path, data):
     try:
@@ -57,7 +56,7 @@ def append_to_excel(file_path, data):
         raise
 
 # Load users from the Excel file
-USERS = load_users_from_excel("login_data.xlsx")
+USERS = load_users_from_excel("./login_data.xlsx")
 
 
 def get_first_name(key):
