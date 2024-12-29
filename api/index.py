@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import openpyxl
 from flask_cors import CORS
+import os
 
 
 app = Flask(__name__)
@@ -55,8 +56,17 @@ def append_to_excel(file_path, data):
         print(f"Error while writing to Excel: {e}")
         raise
 
+def get_file_path(file_name):
+    current_file_path = os.path.abspath(__file__)
+    api_folder_path = os.path.dirname(current_file_path)
+    project_folder_path = os.path.dirname(api_folder_path)
+
+    # return os.path.join(project_folder_path, file_name)
+
+    return file_name
+
 # Load users from the Excel file
-USERS = load_users_from_excel("./login_data.xlsx")
+USERS = load_users_from_excel(get_file_path("login_data.xlsx"))
 
 
 def get_first_name(key):
@@ -89,7 +99,7 @@ def requestmedic():
     request_date = data.get("request_date")
     request_message = data.get("request_message")
 
-    append_to_excel("medic_requests.xlsx", [key, full_name, request_type, request_date, request_message])
+    append_to_excel(get_file_path("medic_requests.xlsx"), [key, full_name, request_type, request_date, request_message])
 
     return jsonify({"success": True, "key": key}), 200
 
@@ -101,7 +111,7 @@ def requestlogistic():
     full_name = data.get("full_name")
     request_message = data.get("request_message")
 
-    append_to_excel("logistic_requests.xlsx", [key, full_name, request_message])
+    append_to_excel(get_file_path("logistic_requests.xlsx"), [key, full_name, request_message])
 
     return jsonify({"success": True, "key": key}), 200
 
@@ -117,7 +127,7 @@ def missionupdate():
     is_done = data.get("is_done")
 
     # open the excel file and change the value of the appropriate cell
-    wb = openpyxl.load_workbook(f"team{team}.xlsx")
+    wb = openpyxl.load_workbook(get_file_path(f"team{team}.xlsx"))
     sheet = wb.active
 
     # find the appropriate column according to the name
@@ -134,7 +144,7 @@ def missionupdate():
             sheet.cell(i + 2, column_number + 1).value = is_done
 
     # save the changes
-    wb.save(f"team{team}.xlsx")
+    wb.save(get_file_path(f"team{team}.xlsx"))
 
     return jsonify({"success": True, "key": key, "full_name": full_name}), 200
 
@@ -148,7 +158,7 @@ def getmissions():
     first_name = get_first_name(key)
 
     # open the excel file and find the appropriate column
-    wb = openpyxl.load_workbook(f"team{team}.xlsx")
+    wb = openpyxl.load_workbook(get_file_path(f"team{team}.xlsx"))
     sheet = wb.active
 
     first_row = sheet[1]
